@@ -3,6 +3,6 @@ module.exports = function endpoint(regexpUrl, method, handler) {
     regexpUrl,
     method,
     handler,
-    type: 'regular'
+    type: 'notAllowed'
   }
 }

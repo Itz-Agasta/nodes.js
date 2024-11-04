@@ -9,7 +9,7 @@ const static = require('./../static')
 
 const {
   index
-} = require('./endpoints/export')
+} = require('./endpoint-handlers/export')
 
 
 process.env.ENV = process.env.ENV || 'local'
@@ -18,7 +18,7 @@ server(
   app({
     config: JSON.parse(fs.readFileSync(`./example/env/${process.env.ENV}.json`)),
     api: api([
-      endpoint(/\//, 'GET', index)
+      endpoint(/\/$/, 'GET', index)
     ]),
     static: static(),
     deps: {}
