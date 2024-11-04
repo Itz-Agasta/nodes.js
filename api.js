@@ -1,3 +1,3 @@
-const api = {}
-
-module.exports = api
+module.exports = function api(endpoints) {
+  return endpoints
+} 

@@ -1,3 +1,3 @@
-const static = {}
-
-module.exports = static
+module.exports = function static() {
+  return {}
+} 

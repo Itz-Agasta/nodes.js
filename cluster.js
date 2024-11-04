@@ -1,12 +1,13 @@
 const os = require('os')
+const path = require('path')
 const cluster = require('cluster')
 
-module.exports = (masterFunction, workerFunction, numCPUs) => {
-  numCPUs = numCPUs || os.cpus().length
-
-  return () => {
+module.exports = function clusterRunner(masterScript, workerScript) {
+  return (numCPUs) => {
+    numCPUs = numCPUs || os.cpus().length
     if (cluster.isMaster) {
-      masterFunction()
+      const masterScriptPath = path.join(process.cwd(), masterScript)
+      require(masterScriptPath)
       for (let i = 0; i < numCPUs; i++) {
         cluster.fork()
       }
@@ -16,7 +17,8 @@ module.exports = (masterFunction, workerFunction, numCPUs) => {
         cluster.fork()
       })
     } else {
-      workerFunction()
+      const workerScriptPath = path.join(process.cwd(), workerScript)
+      require(workerScriptPath)
     }
   }
 }
