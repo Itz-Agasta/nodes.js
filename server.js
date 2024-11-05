@@ -16,7 +16,7 @@ module.exports = function server(app) {
     cert: fs.readFileSync(app.config.cert),
   })
 
-  server.on('stream', (stream, headers) => {
+  server.on('stream', async (stream, headers) => {
     const requestUrl = headers[':path']
     const requestMethod = headers[':method']
     const allEndpointsInApp = app.api || []
@@ -24,7 +24,7 @@ module.exports = function server(app) {
       return isEndpointMatchedWithRequestUrlAndMethod(endpoint, requestUrl, requestMethod)
     })
     if (matchedEndpoint) {
-      matchedEndpoint.handler({
+      await matchedEndpoint.handler({
         stream, headers,
         config: app.config,
         secrets: app.secrets,
@@ -38,14 +38,14 @@ module.exports = function server(app) {
         return endpoint.type && endpoint.type === 'nowAllowed'
       })
       if (notAllowedEndpoint) {
-        matchedEndpoint.handler({
+        await matchedEndpoint.handler({
           stream, headers,
           config: app.config,
           secrets: app.secrets,
           deps: app.deps
         })
       } else {
-        defaultNotAllowedEndpointHandler({
+        await defaultNotAllowedEndpointHandler({
           stream
         })
       }

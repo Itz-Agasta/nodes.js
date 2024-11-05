@@ -1,4 +1,4 @@
-module.exports = function index({
+module.exports = async function index({
   stream
 }) {
   stream.respond({
