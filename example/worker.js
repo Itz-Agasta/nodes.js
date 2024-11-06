@@ -1,26 +1,49 @@
 console.log('this is executed in worker process', process.pid)
 
 const fs = require('fs')
-const server = require('./../server')
-const app = require('./../app')
-const api = require('./../api')
-const endpoint = require('./../endpoint')
-const static = require('./../static')
+
+const server = require('./../nodes/server')
+const app = require('./../nodes/app')
+const endpoint = require('./../nodes/endpoint')
+const src = require('./../nodes/src')
+const cors = require('./../nodes/cors')
 
 const {
   index
 } = require('./endpoint-handlers/export')
-
+const {
+  html
+} = require('./static-mappers/export')
 
 process.env.ENV = process.env.ENV || 'local'
 
+// TODO: 
+// 1. Add global error handler via domain
+//  1.1 Restart gracefully by server error 
+// 2. Restart gracefully by signal
+// 3. Add string url parser with params
+// 4. Function to get request body from stream
+
 server(
   app({
-    config: JSON.parse(fs.readFileSync(`./example/env/${process.env.ENV}.json`)),
-    api: api([
+    config: JSON.parse(
+      fs.readFileSync(
+        `./example/env/${process.env.ENV}.json`
+      )
+    ),
+    api: [
       endpoint(/\/$/, 'GET', index)
-    ]),
-    static: static(),
+    ],
+    static: [
+      cors(/^\/(html)/, {
+        allowedOrigins: [ '127.0.0.1:8004' ]
+      }),
+      src(/^\/(html)/, html, {
+        useGzip: true,
+        // cacheControl: 'cache, public, max-age=432000',
+        allowedOrigins: [ '127.0.0.1:8004' ]
+      })
+    ],
     deps: {}
   })
 )()

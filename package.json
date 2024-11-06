@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Procedural Web Framework",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "npx eslint",
+    "example": "node example/main.js"
   },
   "author": "guseyn",
   "license": "MIT",

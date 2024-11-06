@@ -3,7 +3,7 @@ module.exports = async function index({
 }) {
   stream.respond({
     'content-type': 'text/plain',
-    'status': 405
+    ':status': 405
   })
   stream.end('405 Not Allowed')
 }
