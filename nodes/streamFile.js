@@ -4,7 +4,23 @@ const fs = require('fs')
 const allowedOrigin = require('./allowedOrigin')
 const mimeType = require('./mimeType')
 
-module.exports = function streamFile(file, stream, requestOrigin, requestHost, stats, status, useGzip, cacheControl, lastModified, allowedOrigins) {
+module.exports = function streamFile(
+  file,
+  stream,
+  requestMethod,
+  requestOrigin,
+  requestHost,
+  stats,
+  status,
+  useGzip,
+  cacheControl,
+  lastModified,
+  allowedOrigins,
+  allowedMethods,
+  allowedHeaders,
+  allowedCredentials,
+  maxAge
+) {
   const gzip = zlib.createGzip()
   const mappedMimeType = mimeType(file)
   const responseHeaders = {
@@ -25,6 +41,24 @@ module.exports = function streamFile(file, stream, requestOrigin, requestHost, s
       requestOrigin,
       requestHost
     )
+    if (requestMethod === 'OPTIONS') {
+      if (allowedMethods) {
+        responseHeaders['access-control-allow-methods'] = allowedMethods.join(', ')
+      } else {
+        responseHeaders['access-control-allow-methods'] = 'GET, OPTIONS'
+      }
+      if (allowedHeaders) {
+        responseHeaders['access-control-allow-headers'] = allowedHeaders.join(', ')
+      } else {
+        responseHeaders['access-control-allow-headers'] = Object.keys(headers).join(', ')
+      }
+      if (allowedCredentials) {
+        responseHeaders['access-control-allow-credentials'] = true
+      }
+      if (maxAge) {
+        responseHeaders['access-control-max-age'] = maxAge
+      }
+    }
   }
   stream.respond(responseHeaders)
   const readStream = fs.createReadStream(file, {

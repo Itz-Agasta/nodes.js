@@ -6,7 +6,6 @@ const server = require('./../nodes/server')
 const app = require('./../nodes/app')
 const endpoint = require('./../nodes/endpoint')
 const src = require('./../nodes/src')
-const cors = require('./../nodes/cors')
 
 const {
   index
@@ -35,13 +34,10 @@ server(
       endpoint(/\/$/, 'GET', index)
     ],
     static: [
-      cors(/^\/(html)/, {
-        allowedOrigins: [ '127.0.0.1:8004' ]
-      }),
       src(/^\/(html)/, html, {
         useGzip: true,
         // cacheControl: 'cache, public, max-age=432000',
-        allowedOrigins: [ '127.0.0.1:8004' ]
+        allowedOrigins: '*'
       })
     ],
     deps: {}

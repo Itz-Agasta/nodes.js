@@ -1,18 +1,25 @@
 module.exports = function src(regexpUrl, mapper, {
   fileNotFound,
   fileNotAccessible,
-  allowedOrigins,
   useGzip,
-  cacheControl
+  cacheControl,
+  allowedOrigins,
+  allowedMethods,
+  allowedHeaders,
+  allowedCredentials,
+  maxAge
 } = {}) {
   return {
     regexpUrl,
     mapper,
     fileNotFound,
     fileNotAccessible,
-    allowedOrigins,
     useGzip,
     cacheControl,
-    type: 'src'
+    allowedOrigins,
+    allowedMethods,
+    allowedHeaders,
+    allowedCredentials,
+    maxAge
   }
 }
