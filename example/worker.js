@@ -6,6 +6,7 @@ const server = require('./../nodes/server')
 const app = require('./../nodes/app')
 const endpoint = require('./../nodes/endpoint')
 const src = require('./../nodes/src')
+const body = require('./../nodes/body')
 
 const {
   index
@@ -20,8 +21,6 @@ process.env.ENV = process.env.ENV || 'local'
 // 1. Add global error handler via domain
 //  1.1 Restart gracefully by server error 
 // 2. Restart gracefully by signal
-// 3. Add string url parser with params
-// 4. Function to get request body from stream
 
 server(
   app({
@@ -32,7 +31,9 @@ server(
     ),
     api: [
       endpoint(/\/$/, 'GET', index),
-      endpoint('/ok/:param?q1&q2', 'GET', ({ stream, headers, params, queries }) => {
+      endpoint('/ok/:param?q1&q2', 'GET', async ({ stream, headers, params, queries }) => {
+        const requestBody = await body(stream)
+        console.log(JSON.parse(requestBody.toString()))
         stream.end(JSON.stringify({ message: 'ok', param: params['param'], query: [queries['q1'], queries['q2']] }))
       })
     ],
