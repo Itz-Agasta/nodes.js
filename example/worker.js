@@ -32,8 +32,8 @@ server(
     ),
     api: [
       endpoint(/\/$/, 'GET', index),
-      endpoint('/ok/:param/?query', 'GET', ({ stream, headers, params, queries }) => {
-        stream.end(JSON.stringify({ message: 'ok', param: params['param'], query: queries['query'] }))
+      endpoint('/ok/:param?q1&q2', 'GET', ({ stream, headers, params, queries }) => {
+        stream.end(JSON.stringify({ message: 'ok', param: params['param'], query: [queries['q1'], queries['q2']] }))
       })
     ],
     static: [

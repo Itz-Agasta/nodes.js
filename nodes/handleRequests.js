@@ -21,7 +21,6 @@ module.exports = async function handleRequests(app, stream, headers) {
     return isEndpointMatchedWithRequestUrlAndMethod(endpoint, requestUrl, requestMethod)
   })
   if (matchedEndpoint) {
-    console.log(matchedEndpoint.urlPattern, requestUrl)
     const { params, queries } = urlParamsAndQueries(matchedEndpoint.urlPattern, requestUrl)
     await matchedEndpoint.handler({
       stream, headers,
