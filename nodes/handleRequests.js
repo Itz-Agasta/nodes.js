@@ -2,6 +2,7 @@ const fs = require('fs')
 
 const isEndpointMatchedWithRequestUrlAndMethod = require('./isEndpointMatchedWithRequestUrlAndMethod')
 const isSrcMatchedWithRequestUrl = require('./isSrcMatchedWithRequestUrl')
+const urlParamsAndQueries = require('./urlParamsAndQueries')
 const defaultSrcNotFoundHandler = require('./defaultSrcNotFoundHandler')
 const defaultSrcNotAccessibleHandler = require('./defaultSrcNotAccessibleHandler')
 const defaultEndpointNotAllowedHandler = require('./defaultEndpointNotAllowedHandler')
@@ -20,8 +21,11 @@ module.exports = async function handleRequests(app, stream, headers) {
     return isEndpointMatchedWithRequestUrlAndMethod(endpoint, requestUrl, requestMethod)
   })
   if (matchedEndpoint) {
+    console.log(matchedEndpoint.urlPattern, requestUrl)
+    const { params, queries } = urlParamsAndQueries(matchedEndpoint.urlPattern, requestUrl)
     await matchedEndpoint.handler({
       stream, headers,
+      params, queries,
       allowedOrigins: matchedEndpoint.allowedOrigins,
       config: app.config,
       secrets: app.secrets,
@@ -33,7 +37,7 @@ module.exports = async function handleRequests(app, stream, headers) {
     })
     if (matchedSrc) {
       const srcMapper = matchedSrc.mapper || defaultSrcMapper
-      const resolvedFilePath = srcMapper(requestUrl, srcMapper)
+      const resolvedFilePath = srcMapper(requestUrl)
       fs.stat(resolvedFilePath, async (err, stats) => {
         if (err) {
           if (err.code === 'ENOENT') {

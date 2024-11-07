@@ -1,4 +1,4 @@
-module.exports = function src(regexpUrl, mapper, {
+module.exports = function src(urlPattern, mapper, {
   fileNotFound,
   fileNotAccessible,
   useGzip,
@@ -10,7 +10,7 @@ module.exports = function src(regexpUrl, mapper, {
   maxAge
 } = {}) {
   return {
-    regexpUrl,
+    urlPattern,
     mapper,
     fileNotFound,
     fileNotAccessible,

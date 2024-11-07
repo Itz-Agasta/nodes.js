@@ -1,6 +1,6 @@
-module.exports = function endpoint(regexpUrl, method, handler) {
+module.exports = function endpoint(urlPattern, method, handler) {
   return {
-    regexpUrl,
+    urlPattern,
     method,
     handler,
     type: 'endpoint'

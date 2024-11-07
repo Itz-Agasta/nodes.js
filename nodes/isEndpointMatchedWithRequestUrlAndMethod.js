@@ -7,10 +7,58 @@ module.exports = function isEndpointMatchedWithRequestUrlAndMethod(endpoint, req
       endpoint.method += ',OPTIONS'
     }
     const methodIsIncluded = endpoint.method.split(',').filter(t => t.trim() === requestMethod).length > 0
-    const urlFitsRegexp = endpoint.regexpUrl.test(requestUrl)
-    match = methodIsIncluded && urlFitsRegexp
+    match = methodIsIncluded && matchUrlPattern(endpoint.urlPattern, requestUrl)
   } else {
-    match = endpoint.regexpUrl.test(requestUrl)
+    match = matchUrlPattern(endpoint.urlPattern, requestUrl)
   }
   return match
+}
+
+function matchUrlPattern(pattern, url) {
+  if (pattern instanceof RegExp) {
+    return pattern.test(url)
+  }
+  const patternParts = pattern.split('?')
+  const patternPathParts = patternParts[0].split('/')
+  const patternQueryParts = patternParts[1] ? patternParts[1].split('?') : []
+
+  const urlParts = url.split('?')
+  const urlPathParts = urlParts[0].split('/')
+  const urlQueryParts = urlParts[1] ? urlParts[1].split('?') : []
+  
+  if (patternPathParts.length !== urlPathParts.length) {
+    return false
+  }
+
+  if (patternQueryParts.length !== urlQueryParts.length) {
+    return false
+  }
+  
+  for (let i = 0; i < patternPathParts.length; i++) {
+    const patternPathPart = patternPathParts[i]
+    const urlPathPart = urlPathParts[i]
+    
+    if (patternPathPart.startsWith(':')) {
+      continue
+    }
+    
+    if (patternPathPart === '*') {
+      continue
+    }
+    
+    if (patternPathPart !== urlPathPart) {
+      return false
+    }
+  }
+
+  for (let i = 0; i < patternQueryParts.length; i++) {
+    const patternQueryPart = patternQueryParts[i]
+    const urlQueryPart = urlQueryPart[i]
+    
+    if (urlQueryPart.split('=')[0] !== patternQueryPart) {
+      return false
+    }
+  }
+  
+  return true
 }
