@@ -9,5 +9,5 @@ module.exports = async function index({
     'content-type': 'text/plain',
     'status': 200
   })
-  stream.end(`This is index page with headers ${JSON.stringify(headers)}`)
+  stream.end(`3) This is index page with headers ${JSON.stringify(headers)}`)
 }

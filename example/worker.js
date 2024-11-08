@@ -32,18 +32,17 @@ server(
     api: [
       endpoint(/\/$/, 'GET', index),
       endpoint('/ok/:param?q1&q2', 'GET', async ({ stream, headers, params, queries }) => {
-        const requestBody = await body(stream)
-        console.log(JSON.parse(requestBody.toString()))
-        stream.end(JSON.stringify({ message: 'ok', param: params['param'], query: [queries['q1'], queries['q2']] }))
+        stream.end(JSON.stringify({ er: '15', param: params['param'], query: [queries['q1'], queries['q2']] }))
       })
     ],
     static: [
       src(/^\/(html)/, html, {
         useGzip: true,
-        // cacheControl: 'cache, public, max-age=432000',
+        cacheControl: 'no-cache',
         allowedOrigins: '*'
       })
     ],
+    // logFile: './output.log',
     deps: {}
   })
 )()
