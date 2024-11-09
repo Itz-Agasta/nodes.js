@@ -276,7 +276,7 @@ const handler = ({
 const corsOptions = {
   cacheControl: 'cache, public, max-age=432000',
   allowedOrigins: [ '1.0.9.220', '1.0.9.1:8004' ], // can also be just a string '*' (default)
-  allowedMethods: [ 'GET', 'OPTIONS' ], // it's Default
+  allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
   maxAge: 86400
@@ -398,7 +398,7 @@ const options = {
   useGzip: true,
   cacheControl: 'cache, public, max-age=432000',
   allowedOrigins: [ '1.0.9.220', '1.0.9.1:8004' ], // can also be just a string '*' (default)
-  allowedMethods: [ 'GET', 'OPTIONS' ], // it's Default
+  allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
   maxAge: 86400
