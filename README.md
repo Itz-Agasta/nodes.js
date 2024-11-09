@@ -1,5 +1,7 @@
 ![nodes.js](logo.svg)
 
+[![nodes.js CI](https://github.com/Guseyn/node.js/actions/workflows/nodes.yml/badge.svg?branch=master)](https://github.com/Guseyn/node.js/actions/workflows/nodes.yml)
+
 NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero dependancies, super simple, you can hack it!
 
 ## Why do we need another framework for Node.js?
