@@ -53,10 +53,10 @@ Config at least must contain following values:
 
 ```json
 {
-	"host": "1.0.2.0",
-	"port": 8004,
-	"key": "./ssl/key.pem",
-	"cert": "./ssl/cert.pem"
+  "host": "1.0.2.0",
+  "port": 8004,
+  "key": "./ssl/key.pem",
+  "cert": "./ssl/cert.pem"
 }
 ```
 
@@ -128,18 +128,18 @@ Your `worker.js` creates a server applicaiton. The API has following composable 
 // we can use global.config, global.log()
 
 server(
-	app({
-		indexFile: './example/static/html/index.html',
-		api: [
-			endpoint(),
-			...
-		],
-		static: [
-			src(),
-			...
-		],
-		deps: {}
-	})
+  app({
+    indexFile: './example/static/html/index.html',
+    api: [
+      endpoint(),
+      ...
+    ],
+    static: [
+      src(),
+      ...
+    ],
+    deps: {}
+  })
 )()
 ``` 
 
@@ -156,16 +156,16 @@ In property `api` you can declare your endpoints:
 ```js
 const api = [
   endpoint('/', 'GET', ({ stream }) => {
-  	stream.respond({
-  		status: 200,
-  		'content-type': 'text/plain'
-  	})
-  	stream.end('This index page.')
+    stream.respond({
+      status: 200,
+      'content-type': 'text/plain'
+    })
+    stream.end('This index page.')
   })
 ]
 
 server(
-	app({ api })
+  app({ api })
 )()
 ```
 
@@ -176,23 +176,23 @@ In the endpoint callback, you can also use incoming headers:
 ```js
 const api = [
   endpoint('/', 'GET', ({ stream, headers }) => {
-  	if (headers['token'] === 'secret token') {
-	  	stream.respond({
-	  		status: 200,
-	  		'content-type': 'text/plain'
-	  	})
-	  	stream.end('This index page.')
-  	}
-  	stream.respond({
-	  	status: 401,
-	  	'content-type': 'text/plain'
-	  })
-	  stream.end('401 Not Authorized.')
+    if (headers['token'] === 'secret token') {
+      stream.respond({
+        status: 200,
+        'content-type': 'text/plain'
+      })
+      stream.end('This index page.')
+    }
+    stream.respond({
+      status: 401,
+      'content-type': 'text/plain'
+    })
+    stream.end('401 Not Authorized.')
   })
 ]
 
 server(
-	app({ api })
+  app({ api })
 )()
 ````
 
@@ -201,18 +201,18 @@ You can also easily get all urls' params and queries:
 ```js
 const api = [
   endpoint('/sum/:p1/:p2?q1&q2', 'GET', ({ stream, params, queries }) => {
-  	const sum = params['p1'] * 1 + params['p2'] * 1 + queries['q1'] * 1 + queries['q2'] * 1
+    const sum = params['p1'] * 1 + params['p2'] * 1 + queries['q1'] * 1 + queries['q2'] * 1
 
-  	stream.respond({
-  		status: 200,
-  		'content-type': 'text/plain'
-  	})
-  	stream.end(`Sum of numbers in url: ${sum}`)
+    stream.respond({
+      status: 200,
+      'content-type': 'text/plain'
+    })
+    stream.end(`Sum of numbers in url: ${sum}`)
   })
 ]
 
 server(
-	app({ api })
+  app({ api })
 )()
 ```
 
@@ -224,19 +224,19 @@ const body = require('./../nodes/body')
 
 const api = [
   endpoint('/echo', 'POST', async ({ stream }) => {
-  	const reqBody = JSON.parse(
-  		await body(stream).toString('utf-8')
-  	)
-  	stream.respond({
-  		status: 200,
-  		'content-type': 'application/json'
-  	})
-  	stream.end(JSON.stringify(reqBody))
+    const reqBody = JSON.parse(
+      await body(stream).toString('utf-8')
+    )
+    stream.respond({
+      status: 200,
+      'content-type': 'application/json'
+    })
+    stream.end(JSON.stringify(reqBody))
   })
 ]
 
 server(
-	app({ api })
+  app({ api })
 )()
 ```
 
@@ -245,16 +245,16 @@ You can access to config (which is also accessible via `global.config`):
 ```js
 const api = [
   endpoint('/', 'GET', ({ stream, config }) => {
-  	stream.respond({
-  		status: 200,
-  		'content-type': 'text/plain'
-  	})
-  	stream.end(`Some config value: ${config['key']}`)
+    stream.respond({
+      status: 200,
+      'content-type': 'text/plain'
+    })
+    stream.end(`Some config value: ${config['key']}`)
   })
 ]
 
 server(
-	app({ api })
+  app({ api })
 )()
 ```
 
@@ -262,22 +262,22 @@ And this is how you can enable CORS for an endpoint:
 
 ```js
 const handler = ({
-	stream, config
+  stream, config
 }) => {
-	stream.respond({
-		status: 200,
-		'content-type': 'text/plain'
-	})
-	stream.end(`Some config value: ${config['key']}`)
+  stream.respond({
+    status: 200,
+    'content-type': 'text/plain'
+  })
+  stream.end(`Some config value: ${config['key']}`)
 }
 
 const corsOptions = {
-	cacheControl: 'cache, public, max-age=432000',
-	allowedOrigins: [ '1.0.2.220', '1.0.2.1:8004' ], // can also be just a string '*' (default)
-	allowedMethods: [ 'GET', 'OPTIONS' ], // it's Default
-	allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
-	allowedCredentials: true,
-	maxAge: 86400
+  cacheControl: 'cache, public, max-age=432000',
+  allowedOrigins: [ '1.0.2.220', '1.0.2.1:8004' ], // can also be just a string '*' (default)
+  allowedMethods: [ 'GET', 'OPTIONS' ], // it's Default
+  allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
+  allowedCredentials: true,
+  maxAge: 86400
 }
 
 const api = [
@@ -285,7 +285,7 @@ const api = [
 ]
 
 server(
-	app({ api })
+  app({ api })
 )()
 ```
 
@@ -297,28 +297,28 @@ In your endpoint handlers, you also have an access to dependecies (`deps`). You 
 
 ```js
 const dbClient = createDBClient({
-	global.config.url,
-	global.config.user,
-	global.config.password
+  global.config.url,
+  global.config.user,
+  global.config.password
 })
 
 const api = [
   endpoint('/user/:id', 'GET', ({ stream, deps }) => {
-  	stream.respond({
-  		status: 200,
-  		'content-type': 'application/json'
-  	})
-  	const dbClient = deps.dbClient
-  	const user = dbClient.query(`Select user by id=${params['id']}`)
-  	stream.end(JSON.stringify(user))
+    stream.respond({
+      status: 200,
+      'content-type': 'application/json'
+    })
+    const dbClient = deps.dbClient
+    const user = dbClient.query(`Select user by id=${params['id']}`)
+    stream.end(JSON.stringify(user))
   })
 ]
 
 server(
-	app({
-		api,
-		deps: { dbClient }
-	})
+  app({
+    api,
+    deps: { dbClient }
+  })
 )()
 ```
 
@@ -337,7 +337,7 @@ const static = [
 ]
 
 server(
-	app({ static })
+  app({ static })
 )()
 ```
 
@@ -355,12 +355,12 @@ function staticMapper(requestUrl) {
 
 const static = [
   src(/^\/(html|css|js|image)/, staticMapper, {
-  	useGzip: true
+    useGzip: true
   })
 ]
 
 server(
-	app({ static })
+  app({ static })
 )()
 ```
 
@@ -374,13 +374,13 @@ function staticMapper(requestUrl) {
 
 const static = [
   src(/^\/(css|js|image)/, staticMapper, {
-  	useGzip: true,
-  	cacheControl: 'cache, public, max-age=432000'
+    useGzip: true,
+    cacheControl: 'cache, public, max-age=432000'
   })
 ]
 
 server(
-	app({ static })
+  app({ static })
 )()
 ```
 
@@ -393,13 +393,13 @@ function staticMapper(requestUrl) {
 }
 
 const options = {
-	useGzip: true,
-	cacheControl: 'cache, public, max-age=432000',
-	allowedOrigins: [ '1.0.2.220', '1.0.2.1:8004' ], // can also be just a string '*' (default)
-	allowedMethods: [ 'GET', 'OPTIONS' ], // it's Default
-	allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
-	allowedCredentials: true,
-	maxAge: 86400
+  useGzip: true,
+  cacheControl: 'cache, public, max-age=432000',
+  allowedOrigins: [ '1.0.2.220', '1.0.2.1:8004' ], // can also be just a string '*' (default)
+  allowedMethods: [ 'GET', 'OPTIONS' ], // it's Default
+  allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
+  allowedCredentials: true,
+  maxAge: 86400
 }
 
 const static = [
@@ -407,7 +407,7 @@ const static = [
 ]
 
 server(
-	app({ static })
+  app({ static })
 )()
 ```
 
@@ -420,8 +420,8 @@ function staticMapper(requestUrl) {
 }
 
 const options = {
-	fileNotFound: 'example/static/html/not-found.html',
-	fileNotAccessible: 'example/static/html/not-accessible.html'
+  fileNotFound: 'example/static/html/not-found.html',
+  fileNotAccessible: 'example/static/html/not-accessible.html'
 }
 
 const static = [
@@ -429,7 +429,7 @@ const static = [
 ]
 
 server(
-	app({ static })
+  app({ static })
 )()
 ````
 ### restart.js
@@ -481,11 +481,11 @@ If you specify `<cli>` instead of values in your config, you will be asked to in
 // local.env
 
 {
-	"host": "1.0.2.0",
-	"port": 8004,
-	"key": "./example/ssl/key.pem",
-	"cert": "./example/ssl/cert.pem",
-	"someSecret": "<cli>"
+  "host": "1.0.2.0",
+  "port": 8004,
+  "key": "./example/ssl/key.pem",
+  "cert": "./example/ssl/cert.pem",
+  "someSecret": "<cli>"
 }
 ```
 
@@ -510,4 +510,4 @@ npm run example:restart
 - [ ] Add Docker Support
 - [ ] Add Let's Encrypt Support out of box
 - [ ] Add admin panel
-	- [ ] Add log reader
+  - [ ] Add log reader
