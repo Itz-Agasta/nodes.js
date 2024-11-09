@@ -498,3 +498,16 @@ You can run example:
 ```bash
 npm run example
 ```
+
+You can also restart example:
+
+```bash
+npm run example:restart
+```
+
+## Next Goals
+
+- [ ] Add Docker Support
+- [ ] Add Let's Encrypt Support out of box
+- [ ] Add admin panel
+	- [ ] Add log reader
