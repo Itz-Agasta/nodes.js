@@ -1,4 +1,4 @@
-# Release 1.0.4
+# Release 1.0.5
 
-e3e38a2 update version in package.json to 1.0.4 (guseyn, Sun Nov 10 02:57:08 2024 +0400)
-ff0dc15 update release and readme (guseyn, Sun Nov 10 02:57:07 2024 +0400)
+b6c93d1 update version in package.json to 1.0.5 (guseyn, Sun Nov 10 03:10:46 2024 +0400)
+2fdde6d update flow (guseyn, Sun Nov 10 03:10:40 2024 +0400)
