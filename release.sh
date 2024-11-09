@@ -1,7 +1,5 @@
 #!/bin/bash
 
-npm run build:all
-
 npm version --no-git-tag-version patch
 version=$(jq -r '.version' package.json)
 git add --all
