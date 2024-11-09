@@ -1,15 +1,13 @@
 module.exports = function app({
-  config,
   api,
   static,
-  logFile,
+  indexFile,
   deps
 }) {
   return {
-    config,
     api,
     static,
-    logFile,
+    indexFile,
     deps
   }
 }

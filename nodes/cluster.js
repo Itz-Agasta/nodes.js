@@ -3,48 +3,63 @@ const path = require('path')
 const cluster = require('cluster')
 const fs = require('fs')
 
+const readSecrets = require('./readSecrets')
+const setupFileLogging = require('./setupFileLogging')
 const disconnectAndExitAllWorkersWithTimeoutRecursively = require('./disconnectAndExitAllWorkersWithTimeoutRecursively')
-const clearRequireCache = require('./clearRequireCache')
-
-const TIME_TO_WAIT_BEFORE_LOG_MESSAGE_ABOUT_RESTARTED_SUBPROCESSES = 6500
 
 module.exports = function clusterRunner(masterScript, workerScript) {
-  return (numCPUs) => {
-    numCPUs = numCPUs || os.cpus().length
+  return async ({
+    numberOfWorkers,
+    restartTime,
+    config,
+    logFile
+  }) => {
+    numberOfWorkers = numberOfWorkers || os.cpus().length
     if (cluster.isPrimary) {
-      fs.writeFileSync('master.pid', process.pid.toString(), 'utf8')
+      fs.writeFileSync('primary.pid', process.pid.toString(), 'utf8')
+
+      await readSecrets(config || {})
+
+      global.log = console.log
+      if (logFile !== undefined) {
+        setupFileLogging(logFile)
+      }
 
       const masterScriptPath = path.join(process.cwd(), masterScript)
+      global.config = config
       require(masterScriptPath)
-      for (let i = 0; i < numCPUs; i++) {
-        cluster.fork()
+      
+      for (let i = 0; i < numberOfWorkers; i++) {
+        cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })
       }
 
       cluster.on('exit', (worker, code, signal) => {
-        console.log(`worker ${worker.process.pid} died (${signal || code}). restarting...`)
-        cluster.fork()
+        global.log(`worker ${worker.process.pid} died (${signal || code}). restarting...`)
+        cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })
       })
 
       process.on('SIGINT', () => {
-        fs.unlinkSync('master.pid')
+        fs.unlinkSync('primary.pid')
         process.exit()
       })
 
       process.on('SIGUSR1', () => {
         const allWorkers = Object.values(cluster.workers)
-        disconnectAndExitAllWorkersWithTimeoutRecursively(allWorkers, 0, (error, allWorkers) => {
-          setTimeout(() => {
-            if (error) {
-              console.log(error)
-            }
-            // To be sure message will be dispalyed after all workers are restarted.
-            console.log('All workers are restarted successfully (gracefully and recursively with timeout).')
-          }, TIME_TO_WAIT_BEFORE_LOG_MESSAGE_ABOUT_RESTARTED_SUBPROCESSES)
+        disconnectAndExitAllWorkersWithTimeoutRecursively(allWorkers, 0, restartTime, (error, allWorkers) => {
+          if (error) {
+            global.log(error)
+          }
+          // To be sure message will be dispalyed after all workers are restarted.
+          global.log('All workers are restarted successfully (gracefully and recursively with timeout).')
         })
       })
 
     } else {
-      console.log('worker is here:', process.pid)
+      global.config = JSON.parse(process.env.CONFIG || '{}')
+      global.log = console.log
+      if (process.env.USE_FILE_LOGGING === 'true') {
+        setupFileLogging(logFile)
+      }
       const workerScriptPath = path.join(process.cwd(), workerScript)
       require(workerScriptPath)
     }

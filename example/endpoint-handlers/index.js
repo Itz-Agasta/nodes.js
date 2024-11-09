@@ -2,9 +2,13 @@ module.exports = async function index({
   stream,
   headers,
   config,
-  secrets,
   deps
 }) {
+  console.log({
+    headers,
+    config,
+    deps
+  })
   stream.respond({
     'content-type': 'text/plain',
     'status': 200

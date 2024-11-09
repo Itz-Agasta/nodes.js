@@ -8,6 +8,8 @@ const defaultSrcNotAccessibleHandler = require('./defaultSrcNotAccessibleHandler
 const defaultEndpointNotAllowedHandler = require('./defaultEndpointNotAllowedHandler')
 const defaultSrcMapper = require('./defaultSrcMapper')
 const streamFile = require('./streamFile')
+const corsHandler = require('./corsHandler')
+const addCorsHeaders = require('./addCorsHeaders')
 
 module.exports = async function handleRequests(app, stream, headers) {
   const requestUrl = headers[':path']
@@ -17,19 +19,65 @@ module.exports = async function handleRequests(app, stream, headers) {
 
   const allEndpointsInApp = app.api || []
   const allSrcInApp = app.static || []
+
+  if (app.indexFile && requestMethod === 'GET' && (requestUrl === '/' || requestUrl === '')) {
+    fs.stat(app.indexFile, (err, stats) => {
+      if (err) {
+        throw err
+      }
+      streamFile(
+        app.indexFile,
+        stream,
+        requestMethod,
+        requestOrigin,
+        requestHost,
+        stats,
+        200
+      )
+    })
+    return
+  }
+
   const matchedEndpoint = allEndpointsInApp.find(endpoint => {
     return isEndpointMatchedWithRequestUrlAndMethod(endpoint, requestUrl, requestMethod)
   })
+
   if (matchedEndpoint) {
     const { params, queries } = urlParamsAndQueries(matchedEndpoint.urlPattern, requestUrl)
-    await matchedEndpoint.handler({
-      stream, headers,
-      params, queries,
-      allowedOrigins: matchedEndpoint.allowedOrigins,
-      config: app.config,
-      secrets: app.secrets,
-      deps: app.deps
-    })
+    const allowedOrigins = matchedEndpoint.allowedOrigins
+    const allowedMethods = matchedEndpoint.allowedOrigins
+    const allowedHeaders = matchedEndpoint.allowedOrigins
+    const allowedCredentials = matchedEndpoint.allowedOrigins
+    const maxAge = matchedEndpoint.allowedOrigins
+    if (requestMethod === 'OPTIONS' && allowedOrigins) {
+      corsHandler({
+        stream, headers,
+        allowedOrigins,
+        requestOrigin,
+        requestHost,
+        requestMethod,
+      })
+    } else {
+      if (allowedOrigins) {
+        const originalStreamRespond = stream.respond
+        stream.respond = function respondWithCors(headers) {
+          addCorsHeaders(headers, {
+            allowedOrigins,
+            allowedMethods,
+            allowedHeaders,
+            allowedCredentials,
+            maxAge
+          })
+          originalStreamRespond.call(stream, headers)
+        }
+      }
+      await matchedEndpoint.handler({
+        stream, headers,
+        params, queries,
+        config: app.config,
+        deps: app.deps
+      })
+    }
   } else {
     const matchedSrc = allSrcInApp.find(src => {
       return isSrcMatchedWithRequestUrl(src, requestUrl, requestMethod)

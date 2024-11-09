@@ -41,33 +41,37 @@ module.exports = function streamFile(
       requestOrigin,
       requestHost
     )
-    if (requestMethod === 'OPTIONS') {
-      if (allowedMethods) {
-        responseHeaders['access-control-allow-methods'] = allowedMethods.join(', ')
-      } else {
-        responseHeaders['access-control-allow-methods'] = 'GET, OPTIONS'
-      }
-      if (allowedHeaders) {
-        responseHeaders['access-control-allow-headers'] = allowedHeaders.join(', ')
-      } else {
-        responseHeaders['access-control-allow-headers'] = Object.keys(headers).join(', ')
-      }
-      if (allowedCredentials) {
-        responseHeaders['access-control-allow-credentials'] = true
-      }
-      if (maxAge) {
-        responseHeaders['access-control-max-age'] = maxAge
-      }
+    if (allowedMethods) {
+      responseHeaders['access-control-allow-methods'] = allowedMethods.join(', ')
+    } else {
+      responseHeaders['access-control-allow-methods'] = 'GET,OPTIONS'
+    }
+    if (allowedHeaders) {
+      responseHeaders['access-control-allow-headers'] = allowedHeaders.join(', ')
+    } else {
+      responseHeaders['access-control-allow-headers'] = '*'
+    }
+    if (allowedCredentials) {
+      responseHeaders['access-control-allow-credentials'] = true
+    }
+    if (maxAge) {
+      responseHeaders['access-control-max-age'] = maxAge
     }
   }
-  stream.respond(responseHeaders)
-  const readStream = fs.createReadStream(file, {
-    encoding: 'utf8',
-    highWaterMark: 1024
-  })
-  let gzipOptionalStream = readStream
-  if (useGzip) {
-    gzipOptionalStream = readStream.pipe(gzip)
+  if (requestMethod === 'OPTIONS') {
+    responseHeaders[':status'] = 204
+    stream.respond(responseHeaders)
+    stream.end()
+  } else {
+    stream.respond(responseHeaders)
+    const readStream = fs.createReadStream(file, {
+      encoding: 'utf8',
+      highWaterMark: 1024
+    })
+    let gzipOptionalStream = readStream
+    if (useGzip) {
+      gzipOptionalStream = readStream.pipe(gzip)
+    }
+    gzipOptionalStream.pipe(stream)
   }
-  gzipOptionalStream.pipe(stream)
 }
