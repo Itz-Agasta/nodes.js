@@ -7,7 +7,7 @@ const readSecrets = require('./readSecrets')
 const setupFileLogging = require('./setupFileLogging')
 const disconnectAndExitAllWorkersWithTimeoutRecursively = require('./disconnectAndExitAllWorkersWithTimeoutRecursively')
 
-module.exports = function clusterRunner(masterScript, workerScript) {
+module.exports = function clusterRunner(primaryScript, workerScript) {
   return async ({
     numberOfWorkers,
     restartTime,
@@ -25,9 +25,9 @@ module.exports = function clusterRunner(masterScript, workerScript) {
         setupFileLogging(logFile)
       }
 
-      const masterScriptPath = path.join(process.cwd(), masterScript)
+      const primaryScriptPath = path.join(process.cwd(), primaryScript)
       global.config = config
-      require(masterScriptPath)
+      require(primaryScriptPath)
       
       for (let i = 0; i < numberOfWorkers; i++) {
         cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })

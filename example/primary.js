@@ -1,1 +1,1 @@
-console.log('this is executed in master process')
+console.log('this is executed in primary process')

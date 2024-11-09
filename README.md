@@ -1,6 +1,6 @@
 ![nodes.js](logo.svg)
 
-[![nodes.js CI](https://github.com/Guseyn/node.js/actions/workflows/nodes.yml/badge.svg?branch=master)](https://github.com/Guseyn/node.js/actions/workflows/nodes.yml)
+[![nodes.js CI](https://github.com/Guseyn/node.js/actions/workflows/nodes.yml/badge.svg?branch=main)](https://github.com/Guseyn/node.js/actions/workflows/nodes.yml)
 
 NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero dependancies, super simple, you can hack it!
 
@@ -115,7 +115,7 @@ Your `primary.js` can be used for running other processes, if you need something
 ```js
 // primary.js
 
-// console.log('this is executed in master process')
+// console.log('this is executed in primary process')
 
 // we can use global.config, global.log()
 ```
@@ -441,12 +441,12 @@ You can create a file `restart.js` that restarts all your servers one by one. Al
 ```js
 const fs = require('fs')
 
-const masterProcessId = fs.readFileSync('primary.pid', 'utf-8') 
+const primaryProcessId = fs.readFileSync('primary.pid', 'utf-8') 
 
-process.kill(masterProcessId, 'SIGUSR1')
+process.kill(primaryProcessId, 'SIGUSR1')
 console.log(
 `
-We just sent SIGUSR1 to the primary process with pid: ${masterProcessId}.
+We just sent SIGUSR1 to the primary process with pid: ${primaryProcessId}.
 
 Then primary process will send message to its subprocesses to exit with code 0.
 It will restart them (gracefully and with timeout one by one).
