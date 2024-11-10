@@ -1,28 +1,62 @@
 const http2 = require('http2')
 const fs = require('fs')
+const domain = require('domain')
+const tls = require('tls')
+const cluster = require('cluster')
 
 const handleRequests = require('./handleRequests')
+const constructDomain = require('./constructDomain')
+const readSecrets = require('./readSecrets')
+
+const proxyServer = require('./proxyServer')
 
 module.exports = function server(app) {
-  app.config = app.config || {}
+  global.config.key = global.config.key || 'key.pem'
+  global.config.cert = global.config.cert || 'cert.pem'
+  global.config.host = global.config.host || 'localhost'
+  global.config.port = global.config.port || 8004
 
-  app.config.key = app.config.key || 'key.pem'
-  app.config.cert = app.config.cert || 'cert.pem'
-  app.config.host = app.config.host || 'localhost'
-  app.config.port = app.config.port || 8004
-  
   const server = http2.createSecureServer({
-    key: fs.readFileSync(app.config.key),
-    cert: fs.readFileSync(app.config.cert),
+    key: fs.readFileSync(global.config.key),
+    cert: fs.readFileSync(global.config.cert),
+    SNICallback: (servername, callback) => {
+      const ctx = tls.createSecureContext({
+        key: fs.readFileSync(global.config.key),
+        cert: fs.readFileSync(global.config.cert)
+      })
+      callback(null, ctx)
+    }
   })
 
-  server.on('stream', async (stream, headers) => {
-    await handleRequests(app, stream, headers)
+  server.on('stream', (stream, headers) => {
+    constructDomain(server, stream).run(async () => {
+      app.config = global.config
+      await handleRequests(app, stream, headers)
+    })
+  })
+
+  process.on('exit', () => {
+    if (server.listening) {
+      global.log(`server on worker ${process.pid} is about to be closed`)
+      server.close()
+    }
+  })
+
+  process.on('message', (message) => {
+    if (message === 'Message from Primary Process: Exit your process with code 0 to restart it again.') {
+      process.exit(0)
+    }
   })
   
   return function serverListener() {
-    server.listen(app.config.port, app.config.host, () => {
-      console.log(`HTTP/2 server running at https://${app.config.host}:${app.config.port}`)
+    server.listen(global.config.port, global.config.host, () => {
+      global.log(`HTTP/2 server running at https://${global.config.host}:${global.config.port}`)
     })
+    if (global.config.port === 443) {
+      proxyServer(
+        global.config.host,
+        global.config.port
+      )()
+    }
   }
 }
